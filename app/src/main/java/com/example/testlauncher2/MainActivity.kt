@@ -66,6 +66,10 @@ class MainActivity : AppCompatActivity() {
                 it.passAppList(sortedApps(appList))
         }
     }
+
+    override fun onBackPressed() {
+        // Чтобы ничего не происходило, если мы на главном экране
+    }
 }
 
 
