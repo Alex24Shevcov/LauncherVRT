@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        // Чтобы ничего не происходило, если мы на главном экране
+        // Чтобы ничего не происходило, если мы на главном экране.
     }
 }
 
