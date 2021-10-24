@@ -7,18 +7,24 @@ import android.os.Bundle
 import com.example.testlauncher2.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
+        PREF = getSharedPreferences(FAVORITE_APPS, MODE_PRIVATE)
+
+//        val editor = pref?.edit()
+//        val packages = mutableSetOf<String>("2")
+//        packages.add("awda")
+//        pref.getStringSet("wdad", null)
+//        editor.putStringSet("dawd", packages)
+
+
 
          /**Приведенная инструкция возвращает список всех приложений,
          доступных для запуска пользователем, в виде [ResolveInfo].
@@ -43,7 +49,8 @@ class MainActivity : AppCompatActivity() {
                 val app = AppBlock(
                     ri.loadLabel(packageManager).toString(), // получаем название
                     ri.activityInfo.loadIcon(packageManager), // получаем иконку
-                    ri.activityInfo.packageName // получаем имя пакета приложения
+                    ri.activityInfo.packageName, // получаем имя пакета приложения
+                    isFavoriteApp(ri.activityInfo.packageName) // проверяем изначально, приложение является избранным или нет.
                 )
                 appList.add(app)
             }
@@ -54,13 +61,13 @@ class MainActivity : AppCompatActivity() {
         // сортируем приложения в алфовитном порядке. Делаем это всё не в основном покоте,
         // ибо это ресурса затратный процесс.
 
+
         mainBinding.appRV.adapter = Adapter(this).also {
-            CoroutineScope(Dispatchers.IO).launch {
-                it.passAppList(appList.sortedBy { it.appName })
-            }
+                it.passAppList(sortedApps(appList))
         }
     }
-
 }
+
+
 
 

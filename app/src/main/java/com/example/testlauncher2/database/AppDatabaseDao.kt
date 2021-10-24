@@ -17,6 +17,6 @@ interface AppDatabaseDao {
     @Query("SELECT * FROM favorite_app ORDER BY appId DESC")
     fun getAllApps(): LiveData<List<FavoriteApp>>
 
-    @Query("DELETE FROM favorite_app WHERE appId = :key")
-    suspend fun deleteApp(key: Long)
+    @Query("DELETE FROM favorite_app WHERE package_app = :packageApp")
+    suspend fun deleteApp(packageApp: String)
 }
