@@ -1,12 +1,15 @@
 package com.example.testlauncher2
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testlauncher2.database.AppDatabaseDao
@@ -21,7 +24,7 @@ import kotlinx.coroutines.launch
 // это сделано для упрощения задач, требующих параметра контекста.
 class Adapter(
     private val context: Context,
-) : RecyclerView.Adapter<Adapter.AppItemViewHolder>(){
+) : RecyclerView.Adapter<Adapter.AppItemViewHolder>() {
     private var appList: List<AppBlock>? = null
 
     class AppItemViewHolder(view: View) : RecyclerView.ViewHolder(view)
@@ -49,6 +52,13 @@ class Adapter(
     override fun onBindViewHolder(holder: AppItemViewHolder, position: Int) {
         holder.itemView.appIcon.setImageDrawable(appList?.get(position)?.icon)
         holder.itemView.appName.text = appList?.get(position)?.appName
+
+        if (isFavoriteApp(appList?.get(position)?.packageName!!))
+            holder.itemView.favoriteBtn.setImageResource(android.R.drawable.star_on)
+        else
+            holder.itemView.favoriteBtn.setImageResource(android.R.drawable.star_off)
+
+
         // для запуска приложения
         holder.itemView.setOnClickListener {
             context.startActivity(
@@ -57,12 +67,11 @@ class Adapter(
                 )
             )
         }
-        holder.itemView.switchFav.setOnClickListener {
-            if (holder.itemView.switchFav.isChecked) {
+        holder.itemView.favoriteBtn.setOnClickListener {
+            if (!isFavoriteApp(appList?.get(position)?.packageName!!)) {
                 addFavoriteApp(appList?.get(position)?.packageName)
 
                 passAppList(sortedApps(appList))
-
                 Toast.makeText(
                     context,
                     "Добавлено в избранное ${appList?.get(position)?.appName}",
@@ -85,17 +94,19 @@ class Adapter(
     }
 
 
-
     // Функция passAppList()используется для передачи a List<AppBlock>адаптеру.
     fun passAppList(appsList: List<AppBlock>?) {
+
         appList = appsList
         notifyDataSetChanged()
     }
 
-    private fun addFavoriteApp(packageApp: String?){
+    @SuppressLint("MutatingSharedPrefs")
+    private fun addFavoriteApp(packageApp: String?) {
         val tmpSet = PREF.getStringSet(APPS, mutableSetOf())
         tmpSet?.add(packageApp)
-        val editor = PREF?.edit()
+        val editor = PREF.edit()
+        editor.clear()
         editor?.putStringSet(APPS, tmpSet)
         editor?.apply()
         for (i in 0 until appList!!.size)
@@ -104,12 +115,14 @@ class Adapter(
 
     }
 
-    private fun deleteFavoriteApp(packageApp: String?){
+    @SuppressLint("MutatingSharedPrefs")
+    private fun deleteFavoriteApp(packageApp: String?) {
         val tmpSet = PREF.getStringSet(APPS, mutableSetOf())
         if (tmpSet.isNullOrEmpty())
             return
-        tmpSet?.remove(packageApp)
-        val editor = PREF?.edit()
+        tmpSet.remove(packageApp)
+        val editor = PREF.edit()
+        editor?.clear()
         editor?.putStringSet(APPS, tmpSet)
         editor?.apply()
         for (i in 0 until appList!!.size)
