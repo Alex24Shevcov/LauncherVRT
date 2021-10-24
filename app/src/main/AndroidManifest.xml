@@ -17,6 +17,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
             android:stateNotNeeded="true"
             android:theme="@style/AppTheme"
             >
