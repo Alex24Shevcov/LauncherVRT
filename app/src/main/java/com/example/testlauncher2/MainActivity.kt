@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import com.example.testlauncher2.databinding.ActivityMainBinding
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
@@ -19,7 +20,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
-        PREF = getSharedPreferences(FAVORITE_APPS, MODE_PRIVATE)
+        PREF_FAVORITE_APPS = getSharedPreferences(FAVORITE_APPS, MODE_PRIVATE)
+        PREF_SWIPE_APPS = getSharedPreferences(SWIPE_APPS, MODE_PRIVATE)
 
         detector = GestureDetectorCompat(this, DiaryGestureListener())
 
@@ -74,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return if (detector.onTouchEvent(event))
             true
-         else
+        else
             super.onTouchEvent(event)
 
     }
@@ -95,20 +97,31 @@ class MainActivity : AppCompatActivity() {
 
             return if (Math.abs(diffX) > Math.abs(diffY)) {
                 // this is a left or right swipe
-                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (diffX > 0)
-                    // right swipe
-                        this@MainActivity.onSwipeRight()
-                    else
-                    // left swipe.
-                        this@MainActivity.onLeftSwipe()
+                if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffX > 0) {
+                        // right swipe
+                        if (!this@MainActivity.onSwipeRight())
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Вы ещё не добавили приложение для свайпа справа",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                    } else {
+                        // left swipe.
+                        if(!this@MainActivity.onLeftSwipe())
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Вы ещё не добавили приложение для свайпа слева",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                    }
                     true
                 } else
                     super.onFling(downEvent, moveEvent, velocityX, velocityY)
 
             } else {
                 // this is either a bottom or top swipe.
-                if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffY > 0)
                         this@MainActivity.onSwipeTop()
                     else
@@ -133,14 +146,34 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Top Swipe", Toast.LENGTH_SHORT).show()
     }
 
-    private fun onLeftSwipe() {
-        Toast.makeText(this, "Left Swipe", Toast.LENGTH_SHORT).show()
+    private fun onLeftSwipe(): Boolean {
+        val tmpStr = PREF_SWIPE_APPS.getString(SWIPE_LEFT, "")
+        if (tmpStr?.isEmpty() == true)
+            return false
+        startActivity(
+            packageManager.getLaunchIntentForPackage(
+                tmpStr ?: "com.krsolutions.yetanotherlauncher"
+            )
+        )
+        return true
     }
 
-    private fun onSwipeRight() {
-        Toast.makeText(this, "Right Swipe", Toast.LENGTH_SHORT).show()
+    private fun onSwipeRight(): Boolean {
+        val tmpStr = PREF_SWIPE_APPS.getString(SWIPE_RIGHT, "")
+        if (tmpStr?.isEmpty() == true)
+            return false
+        startActivity(
+            packageManager.getLaunchIntentForPackage(
+                tmpStr ?: "com.krsolutions.yetanotherlauncher"
+            )
+        )
+        return true
     }
 
+
+    override fun onBackPressed() {
+        // чтобы ничего не происходило
+    }
 }
 
 

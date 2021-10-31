@@ -3,8 +3,13 @@ package com.example.testlauncher2
 import android.content.SharedPreferences
 
 val FAVORITE_APPS = "FAVORITE_APPS"
+val SWIPE_APPS = "SWIPE_APPS"
 val APPS = "APPS"
-lateinit var PREF: SharedPreferences
+val SWIPE_LEFT = "SWIPE_LEFT"
+val SWIPE_RIGHT = "SWIPE_RIGHT"
+
+lateinit var PREF_FAVORITE_APPS: SharedPreferences
+lateinit var PREF_SWIPE_APPS: SharedPreferences
 
 fun sortedApps(array: List<AppBlock>?): List<AppBlock> {
     var hasFavoriteApp = false
@@ -34,7 +39,7 @@ fun sortedApps(array: List<AppBlock>?): List<AppBlock> {
 }
 
 fun isFavoriteApp(packageApp: String): Boolean{
-    val tmpSet = PREF.getStringSet(APPS, null)
+    val tmpSet = PREF_FAVORITE_APPS.getStringSet(APPS, null)
     if (!tmpSet.isNullOrEmpty())
         return tmpSet.contains(packageApp)
     return false

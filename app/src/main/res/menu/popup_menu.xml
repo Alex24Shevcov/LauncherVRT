@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_popup_edit"
-        android:title="Edit" />
+        android:id="@+id/favoriteItem"
+        android:title="Favorite" />
     <item
-        android:id="@+id/action_popup_delete"
-        android:title="Delete" />
+        android:id="@+id/swipe_Left_item"
+        android:title="add to swipe left" />
+    <item
+        android:id="@+id/swipe_Right_item"
+        android:title="add to swipe right" />
 </menu>

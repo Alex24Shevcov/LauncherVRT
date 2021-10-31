@@ -53,9 +53,9 @@ class Adapter(
 
     @SuppressLint("MutatingSharedPrefs")
     private fun addFavoriteApp(packageApp: String?) {
-        val tmpSet = PREF.getStringSet(APPS, mutableSetOf())
+        val tmpSet = PREF_FAVORITE_APPS.getStringSet(APPS, mutableSetOf())
         tmpSet?.add(packageApp)
-        val editor = PREF.edit()
+        val editor = PREF_FAVORITE_APPS.edit()
         editor.clear()
         editor?.putStringSet(APPS, tmpSet)
         editor?.apply()
@@ -66,17 +66,32 @@ class Adapter(
 
     @SuppressLint("MutatingSharedPrefs")
     private fun deleteFavoriteApp(packageApp: String?) {
-        val tmpSet = PREF.getStringSet(APPS, mutableSetOf())
+        val tmpSet = PREF_FAVORITE_APPS.getStringSet(APPS, mutableSetOf())
         if (tmpSet.isNullOrEmpty())
             return
         tmpSet.remove(packageApp)
-        val editor = PREF.edit()
+        val editor = PREF_FAVORITE_APPS.edit()
         editor?.clear()
         editor?.putStringSet(APPS, tmpSet)
         editor?.apply()
         for (i in 0 until appList!!.size)
             if (appList!![i].packageName == packageApp && appList!![i].isFavorite)
                 appList!![i].isFavorite = false
+    }
+
+
+    @SuppressLint("CommitPrefEdits")
+    private fun addSwipeLeftApp(packageApp: String?) {
+        val editor = PREF_SWIPE_APPS.edit()
+        editor?.putString(SWIPE_LEFT, packageApp)
+        editor?.apply()
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    private fun addSwipeRightApp(packageApp: String?) {
+        val editor = PREF_SWIPE_APPS.edit()
+        editor?.putString(SWIPE_RIGHT, packageApp)
+        editor?.apply()
     }
 
 
@@ -90,32 +105,6 @@ class Adapter(
                     )
                 )
             }
-
-//            itemView.favoriteBtn.setOnClickListener {
-//                if (!isFavoriteApp(appList?.get(position)?.packageName!!)) {
-//                    addFavoriteApp(appList?.get(position)?.packageName)
-//
-//                    passAppList(sortedApps(appList))
-//                    Toast.makeText(
-//                        context,
-//                        "Добавлено в избранное ${appList?.get(position)?.appName}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//
-//                } else {
-//                    deleteFavoriteApp(appList?.get(position)?.packageName)
-//
-//                    passAppList(sortedApps(appList))
-//
-//
-//                    Toast.makeText(
-//                        context,
-//                        "Удалено из в избранное ${appList?.get(position)?.appName}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-
             itemView.menuBtn.setOnClickListener {
                 popupMenus(it)
             }
@@ -127,12 +116,50 @@ class Adapter(
             popupMenus.inflate(R.menu.popup_menu)
             popupMenus.setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.action_popup_edit -> {
-                        Toast.makeText(context, "click edit", Toast.LENGTH_SHORT).show()
+                    R.id.favoriteItem -> {
+                        if (!isFavoriteApp(appList?.get(position)?.packageName!!)) {
+                            addFavoriteApp(appList?.get(position)?.packageName)
+
+                            passAppList(sortedApps(appList))
+                            Toast.makeText(
+                                context,
+                                "Добавлено в избранное ${appList?.get(position)?.appName}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        } else {
+                            deleteFavoriteApp(appList?.get(position)?.packageName)
+
+                            passAppList(sortedApps(appList))
+
+
+                            Toast.makeText(
+                                context,
+                                "Удалено из избранного ${appList?.get(position)?.appName}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         true
                     }
-                    R.id.action_popup_delete -> {
-                        Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show()
+                    R.id.swipe_Left_item -> {
+                        addSwipeLeftApp(appList?.get(position)?.packageName)
+                        Toast.makeText(
+                            context,
+                            "${appList?.get(position)?.appName} добавлено в левый свайп",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        true
+                    }
+
+                    R.id.swipe_Right_item -> {
+                        addSwipeRightApp(appList?.get(position)?.packageName)
+                        Toast.makeText(
+                            context,
+                            "${appList?.get(position)?.appName} добавлено в правый свайп",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
                         true
                     }
 
