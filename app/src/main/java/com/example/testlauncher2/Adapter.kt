@@ -1,23 +1,14 @@
 package com.example.testlauncher2
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
-import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
-import com.example.testlauncher2.database.AppDatabaseDao
 import kotlinx.android.synthetic.main.item_app.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.internal.synchronized
-import kotlinx.coroutines.launch
 
 
 // Адаптер context передал ему в качестве параметра,
@@ -27,19 +18,11 @@ class Adapter(
 ) : RecyclerView.Adapter<Adapter.AppItemViewHolder>() {
     private var appList: List<AppBlock>? = null
 
-    class AppItemViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
-//    inner class AppItemViewHolder(
-//        val appBinding: ItemAppBinding
-//    ): RecyclerView.ViewHolder(appBinding.root)
-
-
     // В этом методе мы даём знать адаптеру, где наша "разукрашка",
     // где находится то, что мы будем показывать.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppItemViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_app, parent, false)
-        //appBinding = ItemAppBinding.inflate(inflater, parent, false)
         return AppItemViewHolder(view)
     }
 
@@ -58,45 +41,12 @@ class Adapter(
         else
             holder.itemView.favoriteBtn.setImageResource(android.R.drawable.star_off)
 
-
-        // для запуска приложения
-        holder.itemView.setOnClickListener {
-            context.startActivity(
-                context.packageManager.getLaunchIntentForPackage(
-                    appList?.get(position)?.packageName ?: "com.krsolutions.yetanotherlauncher"
-                )
-            )
-        }
-        holder.itemView.favoriteBtn.setOnClickListener {
-            if (!isFavoriteApp(appList?.get(position)?.packageName!!)) {
-                addFavoriteApp(appList?.get(position)?.packageName)
-
-                passAppList(sortedApps(appList))
-                Toast.makeText(
-                    context,
-                    "Добавлено в избранное ${appList?.get(position)?.appName}",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } else {
-                deleteFavoriteApp(appList?.get(position)?.packageName)
-
-                passAppList(sortedApps(appList))
-
-
-                Toast.makeText(
-                    context,
-                    "Удалено из в избранное ${appList?.get(position)?.appName}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
     }
 
 
     // Функция passAppList()используется для передачи a List<AppBlock>адаптеру.
+    @SuppressLint("NotifyDataSetChanged")
     fun passAppList(appsList: List<AppBlock>?) {
-
         appList = appsList
         notifyDataSetChanged()
     }
@@ -112,7 +62,6 @@ class Adapter(
         for (i in 0 until appList!!.size)
             if (appList!![i].packageName == packageApp && !appList!![i].isFavorite)
                 appList!![i].isFavorite = true
-
     }
 
     @SuppressLint("MutatingSharedPrefs")
@@ -131,4 +80,66 @@ class Adapter(
     }
 
 
+    inner class AppItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        init {
+            // для запуска приложения
+            itemView.setOnClickListener {
+                context.startActivity(
+                    context.packageManager.getLaunchIntentForPackage(
+                        appList?.get(position)?.packageName ?: "com.krsolutions.yetanotherlauncher"
+                    )
+                )
+            }
+
+//            itemView.favoriteBtn.setOnClickListener {
+//                if (!isFavoriteApp(appList?.get(position)?.packageName!!)) {
+//                    addFavoriteApp(appList?.get(position)?.packageName)
+//
+//                    passAppList(sortedApps(appList))
+//                    Toast.makeText(
+//                        context,
+//                        "Добавлено в избранное ${appList?.get(position)?.appName}",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//
+//                } else {
+//                    deleteFavoriteApp(appList?.get(position)?.packageName)
+//
+//                    passAppList(sortedApps(appList))
+//
+//
+//                    Toast.makeText(
+//                        context,
+//                        "Удалено из в избранное ${appList?.get(position)?.appName}",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+
+            itemView.menuBtn.setOnClickListener {
+                popupMenus(it)
+            }
+        }
+
+
+        private fun popupMenus(v: View) {
+            val popupMenus = PopupMenu(context, v)
+            popupMenus.inflate(R.menu.popup_menu)
+            popupMenus.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_popup_edit -> {
+                        Toast.makeText(context, "click edit", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.action_popup_delete -> {
+                        Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+
+                    else -> true
+                }
+            }
+            popupMenus.show()
+        }
+    }
 }

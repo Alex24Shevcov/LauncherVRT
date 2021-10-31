@@ -6,19 +6,21 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
+
     <TextView
         android:id="@+id/header"
+        style="@style/TextAppearance.AppCompat.Display1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="wrap_content"
         android:layout_margin="16dp"
         android:paddingTop="16dp"
         android:paddingBottom="32dp"
-        android:textColor="@android:color/white"
         android:text="APPLICATIONS"
-        style="@style/TextAppearance.AppCompat.Display1"/>
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appRV"
@@ -32,6 +34,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
         tools:listitem="@layout/item_app" />
+
     <!--
         Нужен для того, чтобы на макете recyclerView
         заранее можно было сматреть как всё будет выглядеть
